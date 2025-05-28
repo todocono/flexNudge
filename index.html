@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Data Collection Interface for Gesture Training</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Data Collection Interface for Gesture Training</h1>
+      
+      <div class="controls">
+        <button id="btn-connect" class="btn btn-primary">
+          Connect Device
+        </button>
+        <span id="connection-status">Disconnected</span>
+      </div>
+      
+    <!-- main layout: EI config and data collection on left & serial monitor on right -->
+    <div class="main-layout">
+      <!-- left side -->
+      <div class="ml-side">
+        <div class="ml-section">
+          <h2>Edge Impulse Configuration</h2>
+          <div class="config-row">
+            <label for="api-key">API Key:</label>
+            <input type="password" id="api-key" placeholder="Enter your Edge Impulse API key">
+          </div>
+          <div class="config-row">
+            <label for="project-id">Project ID:</label>
+            <input type="text" id="project-id" placeholder="Enter your 6 Digit Edge Impulse project ID">
+          </div>
+          <button id="btn-test-connection" class="btn btn-secondary">Test Connection</button>
+          <span id="ei-connection-status" class="status-indicator disconnected">Not Connected</span>
+        </div>
+        
+        <div class="ml-section">
+          <h2>Data Collection</h2>
+          <div class="config-row">
+            <label for="sample-label">Sample Label:</label>
+            <input type="text" id="sample-label" placeholder="'data-1'...">
+          </div>
+          <div class="config-row">
+            <label for="collection-duration">Duration (ms):</label>
+            <input type="number" id="collection-duration" value="5000" min="1000" max="30000">
+          </div>
+          <div class="config-row">
+            <label for="sample-rate">Sample Rate (Hz):</label>
+            <input type="number" id="sample-rate" value="100" min="10" max="1000">
+          </div>
+          <button id="btn-start-collection" class="btn btn-success" disabled>
+            Start Data Collection
+          </button>
+          <button id="btn-stop-collection" class="btn btn-danger" disabled>
+            Stop Collection
+          </button>
+        </div>
+      </div>
+        
+      <!-- right side -->
+      <div class="serial-side">
+        <div class="serial-input">
+          <div class="input-header">
+            <span>Send Data</span>
+          </div>
+          <div class="input-controls">
+            <textarea id="serial-input" placeholder="Enter text here..." rows="1"></textarea>
+            <div class="input-buttons">
+              <button id="btn-send" class="btn btn-primary" disabled>Send</button>
+              <button id="btn-send-line" class="btn btn-secondary" disabled>Send + Line End</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="serial-monitor">
+          <div class="monitor-header">
+            <span>Serial Output</span>
+            <div class="monitor-controls">
+              <button id="btn-clear" class="btn btn-secondary">Clear Data</button>
+              <label class="autoscroll-container">
+                <input type="checkbox" id="autoscroll" checked>
+                <span>Auto-scroll</span>
+              </label>
+            </div>
+          </div>
+          <pre id="serialData" class="monitor-content"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <script src="/script.js" defer></script>
+    <script src="/edge-impulse-config.js" defer></script>
+    <script src="/data-collection.js" defer></script>
+  </body>
+</html>
