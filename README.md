@@ -17,3 +17,6 @@ Source files of the schematic and the PCB are stored in the folder PCB. We used 
 ## Firmware
 Files in the nrf52840 need to be compiled with Arduino 2.3.6 with Seeed board definition for Xiao nrf52840 1.1.10 
 We convert the .hex to uf2 with the command python uf2conv.py /Users/(USER)/Documents/Arduino/nrf52840/datalogger_v4/build/Seeeduino.nrf52.xiaonRF52840Sense/datalogger_v4.ino.hex -c -f 0xADA52840
+
+## 3D case
+Printed in flexible TPU, model hosted at https://www.tinkercad.com/things/9DcnymyWoEG/edit?returnTo=%2Fdashboard&sharecode=wvaeXW7-uak3Jjdi1nR7ELJ-LvCoNMIx4T89OGUJ2sk
