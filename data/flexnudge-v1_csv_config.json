@@ -1,0 +1,26 @@
+{
+    "version": 1,
+    "fileName": "terminal_content_1749099028751.txt",
+    "created": 1749099410998,
+    "delimiter": ",",
+    "skipFirstLines": 0,
+    "spec": {
+        "type": "timeseries-row",
+        "valueColumns": [
+            "Ax",
+            "Ay",
+            "Az",
+            "Dx",
+            "Dy",
+            "flex",
+            "B1",
+            "B2"
+        ],
+        "timestamp": {
+            "type": "column",
+            "timestampColumn": "timestamp",
+            "format": "elapsed-milliseconds",
+            "frequency": 50
+        }
+    }
+}
