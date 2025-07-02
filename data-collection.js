@@ -120,9 +120,19 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // debugging
       if (samples.length > 0) {
-        const firstFew = samples.slice(0, 3).map(s => s.value.toFixed(2)).join(', ');
-        const lastFew = samples.slice(-3).map(s => s.value.toFixed(2)).join(', ');
-        window.appendToSerialMonitor(`Sample values: [${firstFew}] ... [${lastFew}]`, true);
+        const firstSample = samples[0];
+        const lastSample = samples[samples.length - 1];
+        
+        if (typeof firstSample === 'object' && 'ax' in firstSample) {
+          // multi sensor data
+          window.appendToSerialMonitor(`Sample format: Multi-sensor (ax=${firstSample.ax}, ay=${firstSample.ay}, az=${firstSample.az}...)`, true);
+        } else if (typeof firstSample === 'object' && 'value' in firstSample) {
+          // single sensor
+          window.appendToSerialMonitor(`Sample values: [${firstSample.value.toFixed(2)}] ... [${lastSample.value.toFixed(2)}]`, true);
+        } else if (typeof firstSample === 'number') {
+          // other direct num values
+          window.appendToSerialMonitor(`Sample values: [${firstSample.toFixed(2)}] ... [${lastSample.toFixed(2)}]`, true);
+        }
       }
     }
     
@@ -143,21 +153,28 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Data collection complete event dispatched');
   }
   
-  // adding data point during collection
+  // adding data point during collection - FIXED VERSION
   function addDataPoint(value, timestamp = Date.now()) {
     if (!isCollecting) return;
     
-    // parsing to make sure its a num
-    const numericValue = parseFloat(value);
-    if (isNaN(numericValue)) {
-      console.warn('Invalid numeric value received:', value);
+    let dataPoint;
+  
+    if (typeof value === 'number') {
+      // single val
+      dataPoint = {
+        value: value,
+        timestamp: timestamp
+      };
+    } else if (typeof value === 'object' && value !== null) {
+      // multiple sensors - preserve the original structure and add timestamp
+      dataPoint = {
+        ...value,
+        timestamp: timestamp
+      };
+    } else {
+      console.warn('Invalid data format received:', value);
       return;
     }
-    
-    const dataPoint = {
-      value: numericValue,
-      timestamp: timestamp
-    };
     
     collectionData.push(dataPoint);
     
@@ -196,7 +213,35 @@ function captureDataForCollection(serialData) {
     const trimmedLine = line.trim();
     if (trimmedLine === '') continue;
     
-    // extraction methods
+    // skip header line
+    if (trimmedLine.includes('timestamp') || trimmedLine.includes('Ax')) {
+      continue;
+    }
+    
+    // parse CSV data
+    if (trimmedLine.includes(',')) {
+      const values = trimmedLine.split(',').map(v => parseFloat(v.trim()));
+      
+      // format: timestamp,Ax,Ay,Az,Dx,Dy,flex,B1,B2
+      if (values.length >= 9 && values.every(v => !isNaN(v))) {
+        const sensorData = {
+          timestamp: values[0],
+          ax: values[1],
+          ay: values[2],
+          az: values[3],
+          dx: values[4],
+          dy: values[5],
+          flex: values[6],
+          b1: values[7],
+          b2: values[8]
+        };
+        
+        console.log('Found multi-sensor data:', sensorData);
+        window.DataCollection.addDataPoint(sensorData);
+        continue;
+      }
+    }
+    
     // simple number
     const simpleNumber = parseFloat(trimmedLine);
     if (!isNaN(simpleNumber)) {
@@ -205,10 +250,9 @@ function captureDataForCollection(serialData) {
       continue;
     }
     
-    // json
+    // JSON parsing
     try {
       const jsonData = JSON.parse(trimmedLine);
-      // look for common sensor value keys
       const possibleKeys = ['value', 'sensor', 'touch', 'reading', 'data'];
       for (const key of possibleKeys) {
         if (typeof jsonData[key] === 'number') {
@@ -218,6 +262,7 @@ function captureDataForCollection(serialData) {
         }
       }
     } catch (e) {
+
     }
   }
 }

@@ -97,19 +97,52 @@ const EDGE_IMPULSE_CONFIG = {
       
       console.log(`Preparing to upload ${samples.length} samples with label "${label}" at ${sampleRate}Hz`);
       
-      // formatting data
-      const payload = {
-        device_name: 'WebSerial-TouchSensor',
-        device_type: 'XIAO_TOUCH_SENSOR',
-        interval_ms: 1000 / sampleRate,
-        sensors: [
-          {
-            name: 'touch_sensor',
-            units: 'raw'
-          }
-        ],
-        values: samples.map(sample => [sample.value])
-      };
+  // check for data
+  const isMultiSensor = samples.length > 0 && typeof samples[0] === 'object' && 'ax' in samples[0];
+  
+  let sensors, values;
+  
+  if (isMultiSensor) {
+    // config multi sensor data
+    sensors = [
+      { name: 'ax', units: 'g' },
+      { name: 'ay', units: 'g' },
+      { name: 'az', units: 'g' },
+      { name: 'dx', units: 'raw' },
+      { name: 'dy', units: 'raw' },
+      { name: 'flex', units: 'raw' },
+      { name: 'b1', units: 'raw' },
+      { name: 'b2', units: 'raw' }
+    ];
+    
+    values = samples.map(sample => [
+      sample.ax || 0,
+      sample.ay || 0,
+      sample.az || 0,
+      sample.dx || 0,
+      sample.dy || 0,
+      sample.flex || 0,
+      sample.b1 || 0,
+      sample.b2 || 0
+    ]);
+  } else {
+    // config single data 
+    sensors = [
+      { name: 'touch_sensor', units: 'raw' }
+    ];
+    
+    values = samples.map(sample => [
+      typeof sample === 'object' ? sample.value : sample
+    ]);
+  }
+  
+  const payload = {
+    device_name: 'WebSerial-TouchSensor',
+    device_type: 'XIAO_TOUCH_SENSOR',
+    interval_ms: 1000 / sampleRate,
+    sensors: sensors,
+    values: values
+  };
       
       const data = {
         protected: {
