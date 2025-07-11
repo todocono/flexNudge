@@ -34,8 +34,8 @@ document.addEventListener('DOMContentLoaded', function() {
       return;
     }
     
-    if (duration < 1000 || duration > 30000) {
-      alert('Duration must be between 1000ms and 30000ms');
+    if (duration < 100 || duration > 30000) {
+      alert('Duration must be between 100ms and 30000ms');
       return;
     }
     
@@ -169,7 +169,8 @@ document.addEventListener('DOMContentLoaded', function() {
       // multiple sensors - preserve the original structure and add timestamp
       dataPoint = {
         ...value,
-        timestamp: timestamp
+        // add ts if it doesnt exist
+        timestamp: value.timestamp !== undefined ? value.timestamp : timestamp
       };
     } else {
       console.warn('Invalid data format received:', value);
@@ -201,6 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('Data collection system ready');
 });
 
+// FIXED
 function captureDataForCollection(serialData) {
   if (!window.DataCollection || !window.DataCollection.isCollecting()) {
     return;
@@ -213,56 +215,43 @@ function captureDataForCollection(serialData) {
     const trimmedLine = line.trim();
     if (trimmedLine === '') continue;
     
-    // skip header line
+    // skip header lines
     if (trimmedLine.includes('timestamp') || trimmedLine.includes('Ax')) {
       continue;
     }
     
-    // parse CSV data
+    // parse CSV data in the format: timestamp,Ax,Ay,Az,Dx,Dy,flex,B1,B2
     if (trimmedLine.includes(',')) {
-      const values = trimmedLine.split(',').map(v => parseFloat(v.trim()));
-      
-      // format: timestamp,Ax,Ay,Az,Dx,Dy,flex,B1,B2
-      if (values.length >= 9 && values.every(v => !isNaN(v))) {
-        const sensorData = {
-          timestamp: values[0],
-          ax: values[1],
-          ay: values[2],
-          az: values[3],
-          dx: values[4],
-          dy: values[5],
-          flex: values[6],
-          b1: values[7],
-          b2: values[8]
-        };
+      try {
+        const values = trimmedLine.split(',').map(v => parseFloat(v.trim()));
         
-        console.log('Found multi-sensor data:', sensorData);
-        window.DataCollection.addDataPoint(sensorData);
-        continue;
-      }
-    }
-    
-    // simple number
-    const simpleNumber = parseFloat(trimmedLine);
-    if (!isNaN(simpleNumber)) {
-      console.log('Found simple number:', simpleNumber);
-      window.DataCollection.addDataPoint(simpleNumber);
-      continue;
-    }
-    
-    // JSON parsing
-    try {
-      const jsonData = JSON.parse(trimmedLine);
-      const possibleKeys = ['value', 'sensor', 'touch', 'reading', 'data'];
-      for (const key of possibleKeys) {
-        if (typeof jsonData[key] === 'number') {
-          console.log('Found JSON value:', jsonData[key]);
-          window.DataCollection.addDataPoint(jsonData[key]);
-          break;
+        // handle data within range of 8 values
+        if (values.length === 8 && values.every(v => !isNaN(v))) {
+          // use current time instead of csv data
+          const currentTimestamp = Date.now();
+          
+          const sensorData = {
+            timestamp: currentTimestamp,
+            ax: values[0],
+            ay: values[1],
+            az: values[2],
+            dx: values[3],
+            dy: values[4],
+            flex: values[5],
+            b1: values[6],
+            b2: values[7]
+          };
+          
+          console.log(`Found 8-value sensor data:`, sensorData);
+          window.DataCollection.addDataPoint(sensorData);
+        } else {
+          console.log('Invalid CSV format... expected 8 values, got:', values.length, 'values:', values);
         }
+      } catch (error) {
+        console.error('Error parsing CSV line:', trimmedLine, error);
       }
-    } catch (e) {
-
+    } else {
+      console.log('Skipping non-CSV line:', trimmedLine);
     }
   }
 }
