@@ -10,6 +10,7 @@ It contains a user-friendly interface for connecting a device and performing dat
 4. Start collecting data
 
 <img width="1437" alt="Screenshot 2025-05-27 at 2 17 53 PM" src="https://github.com/user-attachments/assets/a4a4e14b-8447-42f3-820d-ac6996dda858" />
+All credits to the UI go to Charelle Constantino (https://github.com/yeetyah1030)
 
 ## Circuit Board
 Source files of the schematic and the PCB are stored in the folder PCB. We used the PRO edition of http://easyeda.com/ 
