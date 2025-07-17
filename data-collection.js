@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (typeof firstSample === 'object' && 'ax' in firstSample) {
           // multi sensor data
           window.appendToSerialMonitor(`Sample format: Multi-sensor (ax=${firstSample.ax}, ay=${firstSample.ay}, az=${firstSample.az}...)`, true);
-        } else if (typeof firstSample === 'object' && 'value' in firstSample) {
+        } else if (typeof firstSample === 'object' && 'value' in firstSample) {              
           // single sensor
           window.appendToSerialMonitor(`Sample values: [${firstSample.value.toFixed(2)}] ... [${lastSample.value.toFixed(2)}]`, true);
         } else if (typeof firstSample === 'number') {

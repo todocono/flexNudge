@@ -186,11 +186,11 @@ async function readSerialData() {
           console.log("Received data:", decodedData);
           
           // display data
-          appendToSerialMonitor(decodedData);
+          //appendToSerialMonitor(decodedData);
           
           // pass data to collection system
           if (window.captureDataForCollection) {
-            window.captureDataForCollection(decodedData);
+           // window.captureDataForCollection(decodedData);
           }
         }
       } catch (error) {
@@ -212,7 +212,7 @@ async function readSerialData() {
       }
       
       if (keepReading && port && port.readable) {
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
     }
   } catch (error) {
