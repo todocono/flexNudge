@@ -210,10 +210,6 @@ async function readSerialData() {
           reader = null;
         }
       }
-      
-      if (keepReading && port && port.readable) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
     }
   } catch (error) {
     console.error("Fatal error in read loop:", error);

@@ -3,6 +3,7 @@ let isCollecting = false;
 let collectionData = [];
 let collectionStartTime = null;
 let collectionTimer = null;
+let buffer = '';
 
 document.addEventListener('DOMContentLoaded', function() {
   console.log('Data collection initializing...');
@@ -126,12 +127,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (typeof firstSample === 'object' && 'ax' in firstSample) {
           // multi sensor data
           window.appendToSerialMonitor(`Sample format: Multi-sensor (ax=${firstSample.ax}, ay=${firstSample.ay}, az=${firstSample.az}...)`, true);
-        } else if (typeof firstSample === 'object' && 'value' in firstSample) {
-          // single sensor
-          window.appendToSerialMonitor(`Sample values: [${firstSample.value.toFixed(2)}] ... [${lastSample.value.toFixed(2)}]`, true);
-        } else if (typeof firstSample === 'number') {
-          // other direct num values
-          window.appendToSerialMonitor(`Sample values: [${firstSample.toFixed(2)}] ... [${lastSample.toFixed(2)}]`, true);
         }
       }
     }
@@ -210,7 +205,15 @@ function captureDataForCollection(serialData) {
   
   console.log('Capturing data for collection:', serialData);
   
-  const lines = serialData.split('\n');
+  // add new data to buffer
+  buffer += serialData;
+
+  // process new line data
+  const lines = buffer.split('\n');
+
+  // save the last line back into the buffer
+  buffer = lines.pop() || '';
+
   for (const line of lines) {
     const trimmedLine = line.trim();
     if (trimmedLine === '') continue;
